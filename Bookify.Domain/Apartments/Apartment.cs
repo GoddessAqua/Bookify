@@ -1,4 +1,5 @@
 ﻿using Bookify.Domain.Abstractions;
+using Bookify.Domain.Shared;
 
 namespace Bookify.Domain.Apartments
 {
@@ -9,7 +10,7 @@ namespace Bookify.Domain.Apartments
             Name name,
             Description description,
             Address address,
-            Money currency,
+            Money price,
             Money cleaningFee,
             List<Amenity> amenities) 
             : base(id)
@@ -17,7 +18,7 @@ namespace Bookify.Domain.Apartments
             Name = name;
             Description = description;
             Address = address;
-            Currency = currency;
+            Price = price;
             CleaningFee = cleaningFee;
             Amenities = amenities;
         }
@@ -28,11 +29,11 @@ namespace Bookify.Domain.Apartments
 
         public Address Address { get; private set; }
 
-        public Money Currency { get; private set; }
+        public Money Price { get; private set; }
 
         public Money CleaningFee { get; private set; }
 
-        public DateTime? LastBookOnUtc { get; private set; }
+        public DateTime? LastBookOnUtc { get; internal set; }
 
         public List<Amenity> Amenities { get; private set; } = [];
     }
