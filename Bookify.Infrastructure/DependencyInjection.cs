@@ -1,7 +1,15 @@
 ﻿using Bookify.Application.Abstraction.Clock;
+using Bookify.Application.Abstraction.Data;
 using Bookify.Application.Abstraction.Email;
+using Bookify.Domain.Abstractions;
+using Bookify.Domain.Apartments;
+using Bookify.Domain.Bookings;
+using Bookify.Domain.Users;
 using Bookify.Infrastructure.Clock;
+using Bookify.Infrastructure.Data;
 using Bookify.Infrastructure.Email;
+using Bookify.Infrastructure.Repositories;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +33,20 @@ namespace Bookify.Infrastructure
             {
                 options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
             });
-            
+
+            services.AddScoped<IUserRepository, IUserRepository>();
+
+            services.AddScoped<IApartmentRepository, ApartmentRepository>();
+
+            services.AddScoped<IBookingRepository, BookingRepository>();
+
+            services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
+
+            services.AddSingleton<ISqlConnectionFactory>(_ => 
+                new SqlConnectionFactory(connectionString));
+
+            SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+
             return services;
         }
     }
