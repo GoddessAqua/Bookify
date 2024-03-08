@@ -34,7 +34,7 @@ namespace Bookify.Infrastructure
                 options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
             });
 
-            services.AddScoped<IUserRepository, IUserRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddScoped<IApartmentRepository, ApartmentRepository>();
 
