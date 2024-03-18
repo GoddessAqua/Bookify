@@ -1,5 +1,5 @@
-﻿using Bookify.Application.Abstraction.Messaging;
-using Bookify.Application.Authentication;
+﻿using Bookify.Application.Abstraction.Authentication;
+using Bookify.Application.Abstraction.Messaging;
 using Bookify.Domain.Abstractions;
 using Bookify.Domain.Users;
 
