@@ -1,4 +1,5 @@
 ﻿using Bookify.Domain.Users;
+using System.Data;
 
 namespace Bookify.Infrastructure.Repositories
 {
@@ -7,6 +8,14 @@ namespace Bookify.Infrastructure.Repositories
         public UserRepository(ApplicationDbContext dbContext) : 
             base(dbContext)
         {
+        }
+
+        public override void Add(User user)
+        {
+            foreach (var role in user.Roles)
+                DbContext.Attach(role);
+
+            DbContext.Add(user);
         }
     }
 }
