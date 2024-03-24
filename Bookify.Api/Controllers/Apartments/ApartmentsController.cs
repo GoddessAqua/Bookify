@@ -32,7 +32,7 @@ public class ApartmentsController : ControllerBase
 
     [HttpPost("upload")]
     public async Task<IActionResult> UploadApartments(
-        [FromBody] IFormFile file,
+        [FromForm] IFormFile file,
         CancellationToken cancellationToken)
     {
         if (file is null)
