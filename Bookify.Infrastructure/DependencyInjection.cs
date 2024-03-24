@@ -4,6 +4,7 @@ using Bookify.Application.Abstraction.Data;
 using Bookify.Application.Abstraction.Email;
 using Bookify.Domain.Abstractions;
 using Bookify.Domain.Apartments;
+using Bookify.Domain.ApartmentTask;
 using Bookify.Domain.Bookings;
 using Bookify.Domain.Users;
 using Bookify.Infrastructure.Authentication;
@@ -59,6 +60,8 @@ namespace Bookify.Infrastructure
             services.AddScoped<IApartmentRepository, ApartmentRepository>();
 
             services.AddScoped<IBookingRepository, BookingRepository>();
+
+            services.AddScoped<IApartmentTaskRepository, ApartmentTaskRepository>();
 
             services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 

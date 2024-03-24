@@ -22,6 +22,36 @@ namespace Bookify.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Bookify.Domain.ApartmentTask.ApartmentTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("CreatedOnUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on_utc");
+
+                    b.Property<byte[]>("FileData")
+                        .HasColumnType("bytea")
+                        .HasColumnName("file_data");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("file_name");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_apartmentstasks");
+
+                    b.ToTable("apartmentstasks", (string)null);
+                });
+
             modelBuilder.Entity("Bookify.Domain.Apartments.Apartment", b =>
                 {
                     b.Property<Guid>("Id")
