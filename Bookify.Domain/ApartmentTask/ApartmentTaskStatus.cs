@@ -2,7 +2,7 @@
 {
     public enum ApartmentTaskStatus
     {
-        NotResilved = 1,
+        NotResolved = 1,
         Resolved = 2,
         Canceled = 3
     }

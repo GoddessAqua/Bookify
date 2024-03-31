@@ -37,7 +37,7 @@ namespace Bookify.Domain.ApartmentTask
                 utcNow,
                 fileName,
                 fileContent,
-                ApartmentTaskStatus.NotResilved
+                ApartmentTaskStatus.NotResolved
                 );
 
             return task;

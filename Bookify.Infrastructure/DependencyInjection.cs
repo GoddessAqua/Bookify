@@ -12,6 +12,7 @@ using Bookify.Infrastructure.Authorization;
 using Bookify.Infrastructure.Clock;
 using Bookify.Infrastructure.Data;
 using Bookify.Infrastructure.Email;
+using Bookify.Infrastructure.Jobs;
 using Bookify.Infrastructure.Repositories;
 using Dapper;
 using Microsoft.AspNetCore.Authentication;
@@ -20,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Quartz;
 using AuthenticationOptions = Bookify.Infrastructure.Authentication.AuthenticationOptions;
 using AuthenticationService = Bookify.Infrastructure.Authentication.AuthenticationService;
 using IAuthenticationService = Bookify.Application.Abstraction.Authentication.IAuthenticationService;
@@ -41,6 +43,8 @@ namespace Bookify.Infrastructure
             AddAuthentication(services, configuration);
 
             AddAuthorization(services);
+
+            AddQuartz(services);
 
             return services;
         }
@@ -108,6 +112,26 @@ namespace Bookify.Infrastructure
             services.AddScoped<AuthorizationService>();
 
             services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
+        }
+
+        private static void AddQuartz(IServiceCollection services)
+        {
+            services.AddQuartz(options =>
+            {
+                var jobKey = JobKey.Create(nameof(UploadApartmentsJob));
+                options
+                    .AddJob<UploadApartmentsJob>(jobBuilder => jobBuilder.WithIdentity(jobKey))
+                    .AddTrigger(trigger =>
+                        trigger
+                            .ForJob(jobKey)
+                            .WithSimpleSchedule(schedule =>
+                                schedule.WithIntervalInSeconds(5).RepeatForever()));
+            });
+
+            services.AddQuartzHostedService(options =>
+            {
+                options.WaitForJobsToComplete = true;
+            });
         }
     }
 }

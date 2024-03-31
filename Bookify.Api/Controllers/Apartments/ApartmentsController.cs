@@ -49,6 +49,6 @@ public class ApartmentsController : ControllerBase
         if (result.IsFailure)
             return BadRequest(result.Error);
 
-        return Ok(result);
+        return Ok(result.Value);
     }
 }
