@@ -8,5 +8,10 @@ namespace Bookify.Infrastructure.Repositories
             : base(dbContext)
         {
         }
+
+        public void Update(ApartmentTask task)
+        {
+            DbContext.Update(task);
+        }
     }
 }

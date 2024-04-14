@@ -1,8 +1,8 @@
 ﻿using Bookify.Application.Abstraction.Messaging;
 
-namespace Bookify.Application.Apartments.UploadApartments
+namespace Bookify.Application.Apartments.AssignApartmentsTask
 {
-    public record UploadApartmentsCommand(
+    public record AssignApartmentsTaskCommand(
         string FileName, 
         byte[] FileContent) : ICommand<Guid>;
 }

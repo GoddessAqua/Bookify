@@ -8,5 +8,10 @@ namespace Bookify.Infrastructure.Repositories
             base(dbContext)
         {
         }
+
+        public void AddRange(List<Apartment> apartments)
+        {
+            DbContext.AddRange(apartments);
+        }
     }
 }

@@ -2,6 +2,8 @@
 {
     public sealed class ApartmentsTasksResponse
     {
+        public Guid Id { get; init; }
+
         public DateTime CreatedOnUtc { get; init; }
 
         public string FileName { get; init; }

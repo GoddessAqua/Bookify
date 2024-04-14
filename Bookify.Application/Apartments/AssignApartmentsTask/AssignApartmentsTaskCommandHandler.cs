@@ -3,15 +3,15 @@ using Bookify.Application.Abstraction.Messaging;
 using Bookify.Domain.Abstractions;
 using Bookify.Domain.ApartmentTask;
 
-namespace Bookify.Application.Apartments.UploadApartments
+namespace Bookify.Application.Apartments.AssignApartmentsTask
 {
-    internal sealed class UploadApartmentsCommandHandler : ICommandHandler<UploadApartmentsCommand, Guid>
+    internal sealed class AssignApartmentsTaskCommandHandler : ICommandHandler<AssignApartmentsTaskCommand, Guid>
     {
         private readonly IApartmentTaskRepository _apartmentTaskRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public UploadApartmentsCommandHandler(
+        public AssignApartmentsTaskCommandHandler(
             IApartmentTaskRepository apartmentTaskRepository,
             IUnitOfWork unitOfWork,
             IDateTimeProvider dateTimeProvider)
@@ -21,7 +21,7 @@ namespace Bookify.Application.Apartments.UploadApartments
             _dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task<Result<Guid>> Handle(UploadApartmentsCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(AssignApartmentsTaskCommand request, CancellationToken cancellationToken)
         {
             var task = ApartmentTask.Create(
                 _dateTimeProvider.UtcNow,

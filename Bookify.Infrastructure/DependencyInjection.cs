@@ -1,5 +1,6 @@
 ﻿using Bookify.Application.Abstraction.Authentication;
 using Bookify.Application.Abstraction.Clock;
+using Bookify.Application.Abstraction.CSVParser;
 using Bookify.Application.Abstraction.Data;
 using Bookify.Application.Abstraction.Email;
 using Bookify.Domain.Abstractions;
@@ -10,6 +11,7 @@ using Bookify.Domain.Users;
 using Bookify.Infrastructure.Authentication;
 using Bookify.Infrastructure.Authorization;
 using Bookify.Infrastructure.Clock;
+using Bookify.Infrastructure.CSVParser;
 using Bookify.Infrastructure.Data;
 using Bookify.Infrastructure.Email;
 using Bookify.Infrastructure.Jobs;
@@ -37,6 +39,8 @@ namespace Bookify.Infrastructure
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
             services.AddTransient<IEmailService, EmailService>();
+
+            services.AddTransient(typeof(ICSVParser<>), typeof(CSVParser<>));
 
             AddPersistence(services, configuration);
             
@@ -116,22 +120,11 @@ namespace Bookify.Infrastructure
 
         private static void AddQuartz(IServiceCollection services)
         {
-            services.AddQuartz(options =>
-            {
-                var jobKey = JobKey.Create(nameof(UploadApartmentsJob));
-                options
-                    .AddJob<UploadApartmentsJob>(jobBuilder => jobBuilder.WithIdentity(jobKey))
-                    .AddTrigger(trigger =>
-                        trigger
-                            .ForJob(jobKey)
-                            .WithSimpleSchedule(schedule =>
-                                schedule.WithIntervalInSeconds(5).RepeatForever()));
-            });
+            services.AddQuartz();
 
-            services.AddQuartzHostedService(options =>
-            {
-                options.WaitForJobsToComplete = true;
-            });
+            services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
+
+            services.ConfigureOptions<UploadApartmentsJobSetup>();
         }
     }
 }

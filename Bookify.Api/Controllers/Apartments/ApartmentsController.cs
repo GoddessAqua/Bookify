@@ -1,13 +1,13 @@
-﻿using Bookify.Application.Apartments.SearchApartments;
-using Bookify.Application.Apartments.UploadApartments;
+﻿using Bookify.Application.Apartments.AssignApartmentsTask;
+using Bookify.Application.Apartments.SearchApartments;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
+using System.Threading;
 
 namespace Bookify.Api.Controllers.Apartments;
 
-[Authorize]
+//[Authorize]
 [ApiController]
 [Route("api/apartments")]
 public class ApartmentsController : ControllerBase
@@ -42,9 +42,9 @@ public class ApartmentsController : ControllerBase
 
         await file.CopyToAsync(memoryStream, cancellationToken);
 
-        var query = new UploadApartmentsCommand(file.FileName, memoryStream.ToArray());
+        var command = new AssignApartmentsTaskCommand(file.FileName, memoryStream.ToArray());
 
-        var result = await _sender.Send(query, cancellationToken);
+        var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
             return BadRequest(result.Error);

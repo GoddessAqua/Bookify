@@ -7,24 +7,25 @@ using Dapper;
 
 namespace Bookify.Application.Apartments.UploadApartmentsJob.Queries
 {
-    internal sealed class GetUnresolvedTasksJobQueryHandler : IQueryHandler<GetUnresolvedTasksJobQuery, IReadOnlyList<ApartmentsTasksResponse>>
+    internal sealed class GetUnresolvedTasksQueryHandler : IQueryHandler<GetUnresolvedTasksQuery, IReadOnlyList<ApartmentsTasksResponse>>
     {
         private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
         private static readonly int NotResolvedStatus =
             (int)ApartmentTaskStatus.NotResolved;
 
-        public GetUnresolvedTasksJobQueryHandler(ISqlConnectionFactory sqlConnectionFactory)
+        public GetUnresolvedTasksQueryHandler(ISqlConnectionFactory sqlConnectionFactory)
            => _sqlConnectionFactory = sqlConnectionFactory;
 
         public async Task<Result<IReadOnlyList<ApartmentsTasksResponse>>> Handle(
-            GetUnresolvedTasksJobQuery request,
+            GetUnresolvedTasksQuery request,
             CancellationToken cancellationToken)
         {
             using var connection = _sqlConnectionFactory.CreateConnection();
 
             const string sql = """
             SELECT
+                a.id as Id,
                 a.created_on_utc as CreatedOnUtc,
                 a.file_name as FileName,
                 a.file_data as FileData

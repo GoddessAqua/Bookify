@@ -42,5 +42,15 @@ namespace Bookify.Domain.ApartmentTask
 
             return task;
         }
+
+        public Result SetResolvedStatus()
+        {
+            if (Status == ApartmentTaskStatus.Resolved)
+                return Result.Failure(ApartmentTaskErrors.AlreadyResolved);
+
+            Status = ApartmentTaskStatus.Resolved;
+
+            return Result.Success();
+        }
     }
 }
