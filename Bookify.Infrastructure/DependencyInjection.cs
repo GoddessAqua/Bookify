@@ -1,24 +1,21 @@
 ﻿using Bookify.Application.Abstraction.Authentication;
 using Bookify.Application.Abstraction.Clock;
-using Bookify.Application.Abstraction.CSVParser;
 using Bookify.Application.Abstraction.Data;
 using Bookify.Application.Abstraction.Email;
 using Bookify.Domain.Abstractions;
 using Bookify.Domain.Apartments;
-using Bookify.Domain.ApartmentTask;
 using Bookify.Domain.Bookings;
 using Bookify.Domain.Users;
 using Bookify.Infrastructure.Authentication;
 using Bookify.Infrastructure.Authorization;
 using Bookify.Infrastructure.Clock;
-using Bookify.Infrastructure.CSVParser;
 using Bookify.Infrastructure.Data;
 using Bookify.Infrastructure.Email;
-using Bookify.Infrastructure.Jobs;
 using Bookify.Infrastructure.Repositories;
 using Dapper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,8 +36,6 @@ namespace Bookify.Infrastructure
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
             services.AddTransient<IEmailService, EmailService>();
-
-            services.AddTransient(typeof(ICSVParser<>), typeof(CSVParser<>));
 
             AddPersistence(services, configuration);
             
@@ -68,8 +63,6 @@ namespace Bookify.Infrastructure
             services.AddScoped<IApartmentRepository, ApartmentRepository>();
 
             services.AddScoped<IBookingRepository, BookingRepository>();
-
-            services.AddScoped<IApartmentTaskRepository, ApartmentTaskRepository>();
 
             services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
@@ -116,6 +109,10 @@ namespace Bookify.Infrastructure
             services.AddScoped<AuthorizationService>();
 
             services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
+
+            services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
+            services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
         }
 
         private static void AddQuartz(IServiceCollection services)
@@ -123,8 +120,6 @@ namespace Bookify.Infrastructure
             services.AddQuartz();
 
             services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
-
-            services.ConfigureOptions<UploadApartmentsJobSetup>();
         }
     }
 }
