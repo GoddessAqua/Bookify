@@ -1,16 +1,18 @@
-﻿using Bookify.Application.Abstraction.Messaging;
+﻿using Bookify.Domain.Abstractions;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
 
 namespace Bookify.Application.Abstraction.Behaviors
 {
     public class LoggingBehavior<TRequest, TResponse>
         : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IBaseCommand
+        where TRequest : IBaseRequest
+        where TResponse : Result
     {
-        private readonly ILogger<TRequest> _logger;
+        private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
 
-        public LoggingBehavior(ILogger<TRequest> logger)
+        public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger)
             => _logger = logger;
 
         public async Task<TResponse> Handle(
@@ -18,21 +20,31 @@ namespace Bookify.Application.Abstraction.Behaviors
             RequestHandlerDelegate<TResponse> next,
             CancellationToken cancellationToken)
         {
-            var commandName = request.GetType().Name;
+            var name = request.GetType().Name;
 
             try
             {
-                _logger.LogInformation($"Executing command {commandName}");
+                _logger.LogInformation($"Executing request {name}");
 
                 var result = await next();
 
-                _logger.LogInformation($"Command {commandName} processed successfully");
+                if (result.IsSuccess)
+                {
+                    _logger.LogInformation($"Request {name} processed successfully");
+                }
+                else
+                {
+                    using (LogContext.PushProperty("Error", result.Error, true))
+                    {
+                        _logger.LogError($"Request {name} processed with error");
+                    }
+                }
 
                 return result;
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, $"Command {commandName} processed failed");
+                _logger.LogError(exception, $"Request {name} processed failed");
                 throw;
             }
         }
