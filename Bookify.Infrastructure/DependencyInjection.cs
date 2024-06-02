@@ -1,4 +1,5 @@
 ﻿using Bookify.Application.Abstraction.Authentication;
+using Bookify.Application.Abstraction.Caching;
 using Bookify.Application.Abstraction.Clock;
 using Bookify.Application.Abstraction.Data;
 using Bookify.Application.Abstraction.Email;
@@ -8,6 +9,7 @@ using Bookify.Domain.Bookings;
 using Bookify.Domain.Users;
 using Bookify.Infrastructure.Authentication;
 using Bookify.Infrastructure.Authorization;
+using Bookify.Infrastructure.Caching;
 using Bookify.Infrastructure.Clock;
 using Bookify.Infrastructure.Data;
 using Bookify.Infrastructure.Email;
@@ -38,7 +40,9 @@ namespace Bookify.Infrastructure
             services.AddTransient<IEmailService, EmailService>();
 
             AddPersistence(services, configuration);
-            
+
+            AddCaching(services, configuration);
+
             AddAuthentication(services, configuration);
 
             AddAuthorization(services);
@@ -113,6 +117,16 @@ namespace Bookify.Infrastructure
             services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
             services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+        }
+
+        private static void AddCaching(IServiceCollection services, IConfiguration configuration)
+        {
+            string connectionString = configuration.GetConnectionString("Cache") ??
+                                  throw new ArgumentNullException(nameof(configuration));
+
+            services.AddStackExchangeRedisCache(options => options.Configuration = connectionString);
+
+            services.AddSingleton<ICacheService, CacheService>();
         }
 
         private static void AddQuartz(IServiceCollection services)

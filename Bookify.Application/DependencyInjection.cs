@@ -12,8 +12,12 @@ namespace Bookify.Application
             services.AddMediatR(configuration =>
             {
                 configuration.RegisterServicesFromAssemblies(typeof(DependencyInjection).Assembly);
+                
                 configuration.AddOpenBehavior(typeof(LoggingBehavior<,>));
+                
                 configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
+
+                configuration.AddOpenBehavior(typeof(QueryCachingBehavior<,>));
             });
 
             services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
