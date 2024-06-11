@@ -1,4 +1,5 @@
-﻿using Bookify.Application.Abstraction.Authentication;
+﻿using Asp.Versioning;
+using Bookify.Application.Abstraction.Authentication;
 using Bookify.Application.Abstraction.Caching;
 using Bookify.Application.Abstraction.Clock;
 using Bookify.Application.Abstraction.Data;
@@ -41,11 +42,15 @@ namespace Bookify.Infrastructure
 
             AddPersistence(services, configuration);
 
-            AddCaching(services, configuration);
-
             AddAuthentication(services, configuration);
 
             AddAuthorization(services);
+
+            AddCaching(services, configuration);
+
+            AddHealthChecks(services, configuration);
+
+            AddApiVersioning(services);
 
             AddQuartz(services);
 
@@ -127,6 +132,31 @@ namespace Bookify.Infrastructure
             services.AddStackExchangeRedisCache(options => options.Configuration = connectionString);
 
             services.AddSingleton<ICacheService, CacheService>();
+        }
+
+        private static void AddHealthChecks(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddHealthChecks()
+                .AddNpgSql(configuration.GetConnectionString("Database")!)
+                .AddRedis(configuration.GetConnectionString("Cache")!)
+                .AddUrlGroup(new Uri(configuration["KeyCloak:BaseUrl"]!), HttpMethod.Get, "keycloak");
+        }
+
+        private static void AddApiVersioning(IServiceCollection services)
+        {
+            services
+                .AddApiVersioning(options =>
+                {
+                    options.DefaultApiVersion = new ApiVersion(1);
+                    options.ReportApiVersions = true;
+                    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+                })
+                .AddMvc()
+                .AddApiExplorer(options =>
+                {
+                     options.GroupNameFormat = "'v'V";
+                     options.SubstituteApiVersionInUrl = true;
+                });
         }
 
         private static void AddQuartz(IServiceCollection services)
