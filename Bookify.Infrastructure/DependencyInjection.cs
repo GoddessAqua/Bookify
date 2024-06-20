@@ -96,9 +96,9 @@ namespace Bookify.Infrastructure
 
             services.AddHttpClient<IAuthenticationService, AuthenticationService>((serviceProvider, httpClient) =>
             {
-                var keycloackOptions = serviceProvider.GetRequiredService<IOptions<KeycloakOptions>>().Value;
+                KeycloakOptions keycloakOptions = serviceProvider.GetRequiredService<IOptions<KeycloakOptions>>().Value;
 
-                httpClient.BaseAddress = new Uri(keycloackOptions.AdminUrl);
+                httpClient.BaseAddress = new Uri(keycloakOptions.AdminUrl);
             })
             .AddHttpMessageHandler<AdminAuthorizationDelegatingHandler>();
 
