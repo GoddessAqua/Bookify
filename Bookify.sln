@@ -39,7 +39,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bookify.Application.Integra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bookify.Api.FunctionalTests", "..\Bookify.Api.FunctionalTests\Bookify.Api.FunctionalTests.csproj", "{DBEBEEC0-69A4-4F68-AF4D-C842F3E41FD2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bookify.ArchitectureTests", "..\Bookify.ArchitectureTests\Bookify.ArchitectureTests.csproj", "{E0B40E4A-E5EB-4B84-9A0C-49E89520DF91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bookify.ArchitectureTests", "..\Bookify.ArchitectureTests\Bookify.ArchitectureTests.csproj", "{E0B40E4A-E5EB-4B84-9A0C-49E89520DF91}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{09FC4DE7-066B-4640-8A45-AB0FB08B68DC}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

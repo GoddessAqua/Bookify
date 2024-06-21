@@ -3,50 +3,49 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
 
-namespace Bookify.Application.Abstraction.Behaviors
+namespace Bookify.Application.Abstraction.Behaviors;
+
+public class LoggingBehavior<TRequest, TResponse>
+    : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : IBaseRequest
+    where TResponse : Result
 {
-    public class LoggingBehavior<TRequest, TResponse>
-        : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IBaseRequest
-        where TResponse : Result
+    private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
+
+    public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger)
+        => _logger = logger;
+
+    public async Task<TResponse> Handle(
+        TRequest request,
+        RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken)
     {
-        private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
+        string name = request.GetType().Name;
 
-        public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger)
-            => _logger = logger;
-
-        public async Task<TResponse> Handle(
-            TRequest request,
-            RequestHandlerDelegate<TResponse> next,
-            CancellationToken cancellationToken)
+        try
         {
-            var name = request.GetType().Name;
+            _logger.LogInformation("Executing request {Name}", name);
 
-            try
+            TResponse result = await next();
+
+            if (result.IsSuccess)
             {
-                _logger.LogInformation($"Executing request {name}");
-
-                var result = await next();
-
-                if (result.IsSuccess)
-                {
-                    _logger.LogInformation($"Request {name} processed successfully");
-                }
-                else
-                {
-                    using (LogContext.PushProperty("Error", result.Error, true))
-                    {
-                        _logger.LogError($"Request {name} processed with error");
-                    }
-                }
-
-                return result;
+                _logger.LogInformation("Request {Name} processed successfully", name);
             }
-            catch (Exception exception)
+            else
             {
-                _logger.LogError(exception, $"Request {name} processed failed");
-                throw;
+                using (LogContext.PushProperty("Error", result.Error, true))
+                {
+                    _logger.LogError("Request {Name} processed with error", name);
+                }
             }
+
+            return result;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Request {Name} processed failed", name);
+            throw;
         }
     }
 }
