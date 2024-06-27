@@ -25,7 +25,7 @@ public class BookingsController : ControllerBase
     {
         var query = new GetBookingQuery(id);
 
-        var result = await _sender.Send(query, cancellationToken);
+        Domain.Abstractions.Result<BookingResponse> result = await _sender.Send(query, cancellationToken);
 
         return result.IsSuccess ? Ok(result.Value) : NotFound();
     }
@@ -41,7 +41,7 @@ public class BookingsController : ControllerBase
             request.StartDate,
             request.EndDate);
 
-        var result = await _sender.Send(command, cancellationToken);
+        Domain.Abstractions.Result<Guid> result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {

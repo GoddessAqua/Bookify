@@ -25,7 +25,7 @@ public class ApartmentsController : ControllerBase
     {
         var query = new SearchApartmentsQuery(startDate, endDate);
 
-        var result = await _sender.Send(query, cancellationToken);
+        Domain.Abstractions.Result<IReadOnlyList<ApartmentResponse>> result = await _sender.Send(query, cancellationToken);
 
         return Ok(result.Value);
     }

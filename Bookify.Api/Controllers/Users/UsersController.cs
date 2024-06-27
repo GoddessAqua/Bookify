@@ -7,65 +7,68 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Bookify.Api.Controllers.Users
+namespace Bookify.Api.Controllers.Users;
+
+[ApiController]
+[ApiVersion(ApiVersions.V1)]
+[Route("api/v{version:apiVersion}/users")]
+public class UsersController : ControllerBase
 {
-    [ApiController]
-    [ApiVersion(ApiVersions.V1)]
-    [Route("api/v{version:apiVersion}/users")]
-    public class UsersController : ControllerBase
+    private readonly ISender _sender;
+
+    public UsersController(ISender sender)
+        => _sender = sender;
+
+    [HttpGet("me")]
+    [HasPermission(Permissions.UsersRead)]
+    public async Task<IActionResult> GetLoggedInUserV1(CancellationToken cancellationToken)
     {
-        private readonly ISender _sender;
+        var query = new GetLoggedInUserQuery();
 
-        public UsersController(ISender sender)
-            => _sender = sender;
+        Domain.Abstractions.Result<UserResponse> result = await _sender.Send(query, cancellationToken);
 
-        [HttpGet("me")]
-        [HasPermission(Permissions.UsersRead)]
-        public async Task<IActionResult> GetLoggedInUserV1(CancellationToken cancellationToken)
+        return Ok(result.Value);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(
+        RegisterUserRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new RegisterUserCommand(
+            request.Email,
+            request.FirstName,
+            request.LastName,
+            request.Password);
+
+        Domain.Abstractions.Result<Guid> result = await _sender.Send(command, cancellationToken);
+
+        if (result.IsFailure)
         {
-            var query = new GetLoggedInUserQuery();
-
-            var result = await _sender.Send(query, cancellationToken);
-
-            return Ok(result.Value);
+            return BadRequest(result.Error);
         }
 
-        [AllowAnonymous]
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(
-            RegisterUserRequest request,
-            CancellationToken cancellationToken)
+        return Ok(result.Value);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("login")]
+    public async Task<IActionResult> LogIn(
+        LogInUserRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new LoginUserCommand(
+            request.Email,
+            request.Password);
+
+        Domain.Abstractions.Result<AccessTokenResponse> result = await _sender.Send(command, cancellationToken);
+
+        if (result.IsFailure)
         {
-            var command = new RegisterUserCommand(
-                request.Email,
-                request.FirstName,
-                request.LastName,
-                request.Password);
-
-            var result = await _sender.Send(command, cancellationToken);
-
-            if (result.IsFailure)
-                return BadRequest(result.Error);
-
-            return Ok(result.Value);
+            return Unauthorized(result.Error);
         }
 
-        [AllowAnonymous]
-        [HttpPost("login")]
-        public async Task<IActionResult> LogIn(
-            LogInUserRequest request,
-            CancellationToken cancellationToken)
-        {
-            var command = new LoginUserCommand(
-                request.Email,
-                request.Password);
-
-            var result = await _sender.Send(command, cancellationToken);
-
-            if (result.IsFailure)
-                return Unauthorized(result.Error);
-
-            return Ok(result.Value);
-        }
+        return Ok(result.Value);
     }
 }
